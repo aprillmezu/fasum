@@ -1,7 +1,8 @@
+import 'package:firebase_authentication/screens/sign_in_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fasum/screens/sign_in_screen.dart';
-import 'package:fasum/screens/add_post_screen.dart';
+import 'package:firebase_authentication/screens/sign_in_screens.dart';
+import 'package:firebase_authentication/screens/add_post_screens.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,7 +11,6 @@ class HomeScreen extends StatelessWidget {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const SignInScreen()));
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
