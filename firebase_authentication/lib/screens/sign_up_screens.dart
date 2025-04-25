@@ -1,7 +1,7 @@
 import 'package:firebase_authentication/screens/home_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_authentication/screens/sign_up_screens.dart';
+import 'package:firebase_authentication/screens/home_screens.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -11,9 +11,9 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class SignUpScreenState extends State<SignUpScreen> {
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _fullNameController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -48,7 +48,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 32.0),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -57,6 +57,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.email),
                     ),
+
                     validator: (value) {
                       if (value == null ||
                           value.isEmpty ||
@@ -66,11 +67,14 @@ class SignUpScreenState extends State<SignUpScreen> {
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16.0),
+
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: 'Password',
+
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
@@ -79,6 +83,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                               ? Icons.visibility
                               : Icons.visibility_off,
                         ),
+
                         onPressed: () {
                           setState(() {
                             _isPasswordVisible = !_isPasswordVisible;
@@ -86,18 +91,24 @@ class SignUpScreenState extends State<SignUpScreen> {
                         },
                       ),
                     ),
+
                     obscureText: !_isPasswordVisible,
+
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a password';
                       }
+
                       if (value.length < 6) {
                         return 'Password must be at least 6 characters';
                       }
+
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16.0),
+
                   TextFormField(
                     controller: _confirmPasswordController,
                     decoration: InputDecoration(
@@ -110,32 +121,39 @@ class SignUpScreenState extends State<SignUpScreen> {
                               ? Icons.visibility
                               : Icons.visibility_off,
                         ),
+
                         onPressed: () {
                           setState(() {
                             _isConfirmPasswordVisible =
-                                !_isConfirmPasswordVisible;
+                            !_isConfirmPasswordVisible;
                           });
                         },
                       ),
                     ),
+
                     obscureText: !_isConfirmPasswordVisible,
+
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm your password';
                       }
+
                       if (value != _passwordController.text) {
                         return 'Passwords do not match';
                       }
+
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16.0),
+
                   _isLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
-                          onPressed: _signUp,
-                          child: const Text('Sign Up'),
-                        ),
+                    onPressed: _signUp,
+                    child: const Text('Sign Up'),
+                  ),
                 ],
               ),
             ),
@@ -153,14 +171,11 @@ class SignUpScreenState extends State<SignUpScreen> {
     final password = _passwordController.text;
     setState(() => _isLoading = true);
     try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final UserCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(userCredential.user!.uid)
+          .doc(UserCredential.user!.uid)
           .set({
         'fullName': _fullNameController.text.trim(),
         'email': email,
@@ -169,7 +184,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
-        (route) => false, // Hapus semua route sebelumnya
+            (route) => false, // Hapus semua route sebelumnya
       );
     } on FirebaseAuthException catch (error) {
       _showErrorMessage(_getAuthErrorMessage(error.code));
@@ -188,7 +203,7 @@ class SignUpScreenState extends State<SignUpScreen> {
 
   bool _isValidEmail(String email) {
     String emailRegex =
-        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zAZ0-9-]+)*$";
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$";
     return RegExp(emailRegex).hasMatch(email);
   }
 
