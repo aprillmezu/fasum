@@ -3,18 +3,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocation.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 // import 'package:firebase_auth/firebase_auth.dart'
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({super.key});
   @override
-  State<AddPostScreen> createState() => _AddPostScreen1State();
+  State<AddPostScreen> createState() => _AddPostScreenState();
 }
-class _AddPostScreen1State extends State<AddPostScreen> {
+
+class _AddPostScreenState extends State<AddPostScreen> {
   File? _image;
   String? _base64Image;
-  final TextEditingController _descriptionController =
-  TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
   double? _latitude;
@@ -43,13 +45,33 @@ class _AddPostScreen1State extends State<AddPostScreen> {
       }
     }
   }
-  Future<void> _compressAndEncodeImage() async {
+
+  Future<void> _generateDescriptonWithAI() async {
     if (_image == null) return;
+    setState(() => _isGenerating = true);
     try {
-      final compressedImage = await FlutterImageCompress.compressWithFile(
-        _image!.path,
-        quality: 50,
+      final model = await GenerativeModel(
+        model: 'gemini-1-.5-pro',
+        apikey: 'your_api_key_here',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models'
       );
+
+      final imageBytes = await _image!.readAsBytes();
+      final content = context.multi([
+        dataPart('image/jpeg', imageBytes)
+        TextPart(
+          'Berdasarkan foto ini, identifikasi satu kategori utama kerusakan fasilitas umum'
+            'dari daftar berikut: Jalan Rusak, Marka Pudar, Lampu Mati, Trotoar Rusak,'
+            'Rambu Rusak, Jembatan Rusak, Sampah Menumpuk, Saluran Tersumbat, Sungai Tercemar,'
+            'Sampah Sungai, Pohon Tumbang, Taman Rusak, Fasilitas Rusak, Pipa Bocor,'
+            'Vandalisme, Banjir, dan Lainnya.'
+            'Pilih kategori yang paling dominan atau paling mendesak untuk dilaporkan.'
+            'Buat deskripsi singkat untuk laporan perbaikan, dan tambahkan permohonan perbaikan.'
+            'Fokus pada kerusakan yang terlihat dan hindari spekulasi. \n\n'
+            'Format output yang diinginkan:\n'
+            'Kategori: (satu kategori yang dipilih]\n'
+            'Deskripsi: (deskripsi singkat)',
+        ),
       if (compressedImage == null) return;
       setState(() {
         _base64Image = base64Encode(compressedImage);
@@ -59,9 +81,10 @@ class _AddPostScreen1State extends State<AddPostScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Failed to compress image:$e')));
-        }
-        }
-        }
+      }
+    }
+  }
+
   void _showImageSourceDialog() {
     showModalBottomSheet(
       context: context,
@@ -96,6 +119,7 @@ class _AddPostScreen1State extends State<AddPostScreen> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,15 +166,11 @@ class _AddPostScreen1State extends State<AddPostScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 24,),
+            SizedBox(height: 24),
             ElevatedButton(onPressed: () {}, child: Text('Post')),
           ],
         ),
       ),
     );
   }
-}
-
-class FlutterImageCompress {
-  static compressWithFile(String path, {required int quality}) {}
 }
