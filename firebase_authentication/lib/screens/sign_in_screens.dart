@@ -1,15 +1,12 @@
 import 'package:firebase_authentication/screens/sign_up_screens.dart';
 import 'package:flutter/gestures.dart';
-import 'package:firebase_authentication/screens/home_screens.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_authentication/screens/sign_up_screens.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'home_screens.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
-
   @override
   SignInScreenState createState() => SignInScreenState();
 }
@@ -20,13 +17,10 @@ class SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _isPasswordVisible = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Sign In"),
-      ),
+      appBar: AppBar(title: const Text('Sign In')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -40,20 +34,24 @@ class SignInScreenState extends State<SignInScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
-                      labelText: "Email",
+                      labelText: 'Email',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.email),
                     ),
+
                     validator: (value) {
                       if (value == null ||
                           value.isEmpty ||
                           !_isValidEmail(value)) {
-                        return ' Please enter a valid email';
+                        return 'Please enter a valid email';
                       }
+
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16.0),
+
                   TextFormField(
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
@@ -61,10 +59,13 @@ class SignInScreenState extends State<SignInScreen> {
                       labelText: 'Password',
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.lock),
+
                       suffixIcon: IconButton(
-                        icon: Icon(_isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off),
+                        icon: Icon(
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
                         onPressed: () {
                           setState(() {
                             _isPasswordVisible = !_isPasswordVisible;
@@ -72,14 +73,18 @@ class SignInScreenState extends State<SignInScreen> {
                         },
                       ),
                     ),
+
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
                       }
+
                       return null;
                     },
                   ),
+
                   const SizedBox(height: 16.0),
+
                   _isLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
@@ -89,8 +94,10 @@ class SignInScreenState extends State<SignInScreen> {
                   const SizedBox(height: 16.0),
                   RichText(
                     text: TextSpan(
-                      style:
-                      const TextStyle(fontSize: 16.0, color: Colors.black),
+                      style: const TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.black,
+                      ),
                       children: [
                         const TextSpan(text: "Don't have an account? "),
                         TextSpan(
@@ -99,12 +106,16 @@ class SignInScreenState extends State<SignInScreen> {
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
                           ),
-                          recognizer: TapGestureRecognizer()
+
+                          recognizer:
+                          TapGestureRecognizer()
                             ..onTap = () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SignUpScreen()),
+                                  builder:
+                                      (context) => const SignUpScreen(),
+                                ),
                               );
                             },
                         ),
@@ -124,11 +135,10 @@ class SignInScreenState extends State<SignInScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-
     setState(() => _isLoading = true);
-
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -147,14 +157,14 @@ class SignInScreenState extends State<SignInScreen> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   bool _isValidEmail(String email) {
     String emailRegex =
-        r"^[a-zA-Z0-9.!#$%&'+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)$";
+        r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$";
     return RegExp(emailRegex).hasMatch(email);
   }
 
