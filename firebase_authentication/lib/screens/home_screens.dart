@@ -2,15 +2,17 @@ import 'package:firebase_authentication/screens/sign_in_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_authentication/screens/sign_in_screens.dart';
-import 'package:firebase_authentication/screens/add_post_screens.dart';
+import 'add_post_screens.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   Future<void> signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SignInScreen()));
+      MaterialPageRoute(builder: (context) => const SignInScreen()),
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,14 +28,12 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Currently no posts'),
-      ),
+      body: const Center(child: Text('Currently no posts')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => AddPostScreen()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => AddPostScreen()));
         },
         child: const Icon(Icons.add),
       ),
